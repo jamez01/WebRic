@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=0.5">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="/favicon.ico">
+
+  <title>WebRic, A Web IRC Client</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="/webric.css" rel="stylesheet">
+
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+  <div class="modal fade" id="connectDialog" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">Connect to IRC</h4>
+        </div>
+        <div class="modal-body">
+          <form id="userInfo" class="form-horizontal">
+            <div class="form-group">
+              <label class="col-md-3 control-label">Username</label>
+              <div class="col-md-5">
+                <input type="text" class="form-control" name="username" value="WebRic<%=Time.now.to_i%>" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Server</label>
+              <div class="col-md-5">
+                <input type="text" class="form-control" name="server" value="<%=@default_server%>" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Port</label>
+              <div class="col-md-5">
+                <input type="text" class="form-control" name="port" value="<%= @default_port%>" />
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary">Connect</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+  <div class="navbar navbar-default navbar-fixed-top" id='navBar' role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">WebRic<small> - Web IRC Client</small></a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <div class="btn-group">
+              <button class="btn  navbar-btn btn-info">#Chatroom</button>
+              <button class="btn btn-info navbar-btn dropdown-toggle"><span aria-hidden="true">&times;</span></button>
+            </div>
+          </li>
+          <li>
+            <div class="btn-group">
+              <button class="btn  navbar-btn btn-primary">#Chatroom2</button>
+              <button class="btn  navbar-btn btn-primary dropdown-toggle"><span aria-hidden="true">&times;</span></button>
+            </div>
+          </li>
+          <li>
+            <div class="btn-group">
+              <button class="btn  navbar-btn btn-primary">#Chatroom3</button>
+              <button class="btn  navbar-btn btn-primary dropdown-toggle"><span aria-hidden="true">&times;</span></button>
+            </div>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+
+  <div class="container-fluid fill" id='chatContainer'>
+    <div class="row fill" id="chatRow">
+      <div class="col-md-10 fill scrolldown" id='chatCol'>
+        <ul class='list-unstyled' id='msglist'>
+        </ul>
+      </div>
+      <div class="col-md-2 fill hidden-sm hidden-xs" id="users">
+          <ul class="list-unstyled" id="userlist">
+          </ul>
+      </div>
+    </div>
+    <div class="navbar navbar-default navbar-fluid navbar-fixed-bottom">
+      <div class="container-fluid navbar-btn">
+        <div class="form-group"  id="chatInput">
+          <div class="input-group">
+            <input type="text" id="inputbox" class="form-control" autocomplete=off>
+            <span class="input-group-addon">Send</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.container -->
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="../../dist/js/bootstrap.min.js"></script>
+  <script src="/webric.js"></script>
+
+</body>
+</html>
