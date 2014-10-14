@@ -19,9 +19,9 @@ module WebRic
     end
 
     def setup(options)
-      @nick = options['nick'] if options[:nick]
-      @server = options['sever'] if options[:server]
-      @port = options['port'] if options[port]
+      @nick = options['nick'] if options['nick']
+      @server = options['server'] if options['server']
+      @port = options['port'] if options['port']
       connect
     end
 
@@ -190,4 +190,4 @@ EventMachine.run do
       @clients[ws].parse_command(JSON.parse(msg))
     end
   end
-end
+end if __FILE__ == $0
