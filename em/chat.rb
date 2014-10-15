@@ -63,13 +63,12 @@ module WebRic
     end
 
     def privmsg(channel,nick,message)
-      send_command(:privmsg, nick: nick, message: Filter.text(message))
+      send_command(:privmsg, nick: nick, channel: channel , message: Filter.text(message))
     end
 
     def parse_command(hash)
       command = hash['command']
       args = hash['args']
-      puts args
       puts "Invalid command: command_#{command}".to_sym unless self.respond_to?("command_#{command}")
       self.method("command_#{command}".to_sym).call(args) if self.respond_to?("command_#{command}")
     end
@@ -102,14 +101,14 @@ module WebRic
 
     def send_command(command,args)
       puts "Send Command #{command}: #{args}"
-      send({command: command, args: args}.to_json)
+      send_socket({command: command, args: args}.to_json)
     end
 
     private
 
     # wrapper methods
 
-    def send(msg)
+    def send_socket(msg)
       @ws.send(msg)
     end
 

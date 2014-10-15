@@ -32,13 +32,13 @@ describe WebRic::Client do
     @client.systemmsg("testmsg","message")
   end
 
-  xit "sends privmsg messages to websocket" do
+  it "sends privmsg messages to websocket" do
     expect(@client).to receive(:send_command).with(:privmsg, channel: "#test", message: "message", nick: "testUser")
     @client.privmsg("#test", "testUser","message")
   end
 
   it "can parse a valid command" do
     expect(@client).to receive(:command_privmsg)
-    @client.parse_command(command: 'privmsg', args: ["Test"])
+    @client.parse_command({'command' => 'privmsg', 'args' => ["Test"]})
   end
 end
