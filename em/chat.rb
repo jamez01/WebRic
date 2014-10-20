@@ -3,6 +3,11 @@ require 'json'
 require 'cinch'
 require 'gemoji'
 
+require_relative 'lib/filters.rb'
+require_relative 'lib/connect.rb'
+require_relative 'lib/messages.rb'
+require_relative 'lib/join.rb'
+
 module WebRic
 
   class Client
@@ -12,7 +17,7 @@ module WebRic
       @nick = "WebRic#{Time.new.to_i}"
       @channels ||= []
       @port ||= 6667
-      @server ||= "irc.freenode.net"
+      @server ||= "localhost"
 
       @ws = ws
 
@@ -26,36 +31,33 @@ module WebRic
     end
 
     def connect
+      plugins = [WebRic::Plugin::Connect,WebRic::Plugin::Messages,WebRic::Plugin::Join]
       @bot = Cinch::Bot.new
-      @bot.on(:message,//,self) do |m,s|
-        # s.send_command("privmsg",:nick => m.user.nick, :message => Filter.text(m.message), :channel => m.channel)
-        s.privmsg(m.channel, m.user.nick, m.message)
-      end
-
-      @bot.on(:notice,//,self) do |m,s|
-        s.send_command("systemmsg", head: "notice", :message => m.message)
-      end
-
-      @bot.on(:join,//,self) do |m,s|
-        s.on_join(m.user,m.channel)
-      end
 
       @bot.configure do |c|
         c.server = @server
         c.nick = @nick
         c.channels = ["#WebRicIRC"]
+        c.plugins.plugins = plugins
+        plugins.each do |plug|
+          c.plugins.options[plug] = {webclient: self}
+        end
       end
+
       EM.defer{
         @bot.start
       }
+
     end
 
     def socket
       @ws
     end
 
-    def on_join(user,channel)
-      send_command(:join, nick: user.nick, channel: channel, host: user.host)
+    def names(channel)
+      target=@bot.Channel(channel)
+      users = target.users.map { |u,m| "#{'@' if m.include? "o" }#{'+' if m.include? "v"}#{u}"}.sort
+      send_command("names",users: users)
     end
 
     def systemmsg(head, message)
@@ -95,7 +97,7 @@ module WebRic
     def command_names(args)
       channel=args['channel']
       target=@bot.Channel(channel)
-      users = target.users.map { |u,m| "#{'@' if m.include? "o" }#{u}"}.sort
+      users = target.users.map { |u,m| "#{'@' if m.include? "o" }#{'+' if m.include? "v"}#{u}"}.sort
       send_command("names",users: users)
     end
 
@@ -115,53 +117,7 @@ module WebRic
 
   end
 
-  module Filter
-    def self.text(msg)
-      text = msg
-      text = emoji(text)
-      text = smilies(text)
-    end
 
-    def self.smilies(msg)
-      msg.gsub(/([:;])-?([\)\(DPO\*\|\\\/])/) do |match|
-        emoji = case ($1 + $2)
-        when ":)"
-          Emoji.find_by_alias("smile")
-        when ":("
-          Emoji.find_by_alias("frowning")
-        when ":P"
-          Emoji.find_by_alias("stuck_out_tongue")
-        when ":D"
-          Emoji.find_by_alias("grin")
-        when ":*"
-          Emoji.find_by_alias("kissing")
-        when ":|"
-          Emoji.find_by_alias("expressionless")
-        when ":\\", ':/'
-          Emoji.find_by_alias("confused")
-        when ';)', ';D'
-          Emoji.find_by_alias("wink")
-        when ":O", ":o"
-          Emoji.find_by_alias("open_mouth")
-        end
-        if emoji
-          %Q{<img alt="#{match}" src="/images/emoji/#{emoji.image_filename}" style="vertical-align:middle" wdith="20" height="20" />}
-        else
-          match
-        end
-      end
-    end
-
-    def self.emoji(msg)
-      msg.gsub(/:([\w+-]+):/) do |match|
-        if emoji = Emoji.find_by_alias($1.downcase)
-          %Q{<img alt="#$1" src="/images/emoji/#{emoji.image_filename}" style="vertical-align:middle" width="20" height="20" />}
-        else
-          match
-        end
-      end
-    end
-  end
 end
 
 EventMachine.run do
@@ -174,7 +130,7 @@ EventMachine.run do
       client.peer_ip = peer_ip
       client.peer_port = peer_port
       @clients[ws] = client
-      client.systemmsg("WebRic","Welcome to WebRic!") #"Connected to #{handshake.path}."
+      client.systemmsg("WebRic","Welcome to WebRic!")
     end
 
     ws.onclose do

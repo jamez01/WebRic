@@ -14,12 +14,17 @@ function parseCommand(parsed) {
     systemMsg(parsed['args']['head'], parsed['args']['message'])
     break;
   case "join":
-    systemMsg("join",parsed['args']['nick'] + " [" + parsed['args']['host'] + "] ")
-    sendCommand("names", {channel: parsed['args']['channel']});
+    systemMsg("join",parsed['args']['nick'] + " [" + parsed['args']['host'] + "]");
+//    sendCommand("names", {channel: parsed['args']['channel']});
+    break;
+  case "part":
+    systemMsg("part",parsed['args']['nick'] + " ["+ parsed['args']['host'] +"]");
     break;
   case "names":
     updateNames(parsed['args']['users']);
     break;
+  case "topic":
+    topic(parsed['args']['topic'])
   }
 }
 
@@ -51,6 +56,12 @@ function timeStamp() {
 
 // Return the formatted string
   return time.join(":") + suffix;
+}
+
+// Set Topic
+function topic(topic) {
+  addLine('<li><span class="timestamp">&#91;'+timeStamp()+'&#93;</span><span class="message">Channel topic set to '+topic+'</span></li>');
+  $('#topicMessage').text(topic);
 }
 
 // add private message to channel / query
@@ -146,5 +157,5 @@ ws.onopen = function() {
 //  $('#connectDialog').modal({show: true});
   $("#inputbox").focus();
   systemMsg("connected", "Connected to WebRic server.");
-  sendCommand("setup",{server:'irc.freenode.net', port:6667, nick:'WebRicTestBot'});
+  sendCommand("setup",{server:'localhost', port:6667, nick:'WebRicTestBot'});
 };

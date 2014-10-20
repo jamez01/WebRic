@@ -1,7 +1,9 @@
-body {   margin: 65px 0 65px 0;
+body {
+  margin: 65px 0 65px 0;
   overflow: hidden;
   height:100%;
 }
+
 
 @media all and (max-width: 1200px) { /* screen size until 1200px */
     body {
@@ -19,6 +21,14 @@ body {   margin: 65px 0 65px 0;
         }
     }
 
+#topicBar {
+  padding: 2px 0px 2px 0px;
+  margin: -5px -15px 2px -15px;
+  background-color: #375A7F;
+  background-color: #26496E;
+  color: #CECECE;
+  font-size: 15px;
+}
 #chatContainer {
   width: 100%;
   border-bottom-style: groove;
@@ -37,8 +47,8 @@ body {   margin: 65px 0 65px 0;
   margin-bottom: 5px;
 }
 
-.timestamp { color:#606060; padding: 0px 4px 0px 4px; display: inline; font-size: small;}
 
+.timestamp { color:#606060; padding: 0px 4px 0px 4px; display: inline; font-size: small;}
 .nick { padding: 0px 4px 0px 4px; color: #5555FF; display: inline;}
 .message { padding: 0px 4px 0px 4px; display: inline;}
 
