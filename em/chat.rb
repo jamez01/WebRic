@@ -7,10 +7,12 @@ require_relative 'lib/filters.rb'
 require_relative 'lib/connect.rb'
 require_relative 'lib/messages.rb'
 require_relative 'lib/join.rb'
+require_relative 'lib/commands.rb'
 
 module WebRic
 
   class Client
+    include WebRic::Commands
     attr_accessor :nick, :server, :port, :user_info, :peer_ip, :peer_port
     attr_reader :channels, :bot
     def initialize(ws)
@@ -68,39 +70,7 @@ module WebRic
       send_command(:privmsg, nick: nick, channel: channel , message: Filter.text(message))
     end
 
-    def parse_command(hash)
-      command = hash['command']
-      args = hash['args']
-      puts "Invalid command: command_#{command}".to_sym unless self.respond_to?("command_#{command}")
-      self.method("command_#{command}".to_sym).call(args) if self.respond_to?("command_#{command}")
-    end
-
-    ## Commands
-
-    def command_setup(args)
-      puts "Setup!"
-      setup(args)
-    end
-
-    def command_privmsg(args)
-      channel=args['channel']
-      msg=args['message']
-      target = @bot.Target(channel)
-      target.send(msg)
-      privmsg(channel,@bot.nick,msg)
-    end
-
-    def command_send(args)
-
-    end
-
-    def command_names(args)
-      channel=args['channel']
-      target=@bot.Channel(channel)
-      users = target.users.map { |u,m| "#{'@' if m.include? "o" }#{'+' if m.include? "v"}#{u}"}.sort
-      send_command("names",users: users)
-    end
-
+    # Send a command to the web client.
     def send_command(command,args)
       puts "Send Command #{command}: #{args}"
       send_socket({command: command, args: args}.to_json)

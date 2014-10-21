@@ -3,8 +3,13 @@ module WebRic
 
     def self.text(msg)
       text = msg
+      text = html(text)
       text = emoji(text)
       text = smilies(text)
+    end
+
+    def self.html(msg)
+      msg.gsub(/</,"&lt;").gsub(/</,"&gt;")
     end
 
     def self.smilies(msg)
@@ -17,7 +22,7 @@ module WebRic
         when ":P"
           Emoji.find_by_alias("stuck_out_tongue")
         when ":D"
-          Emoji.find_by_alias("grin")
+          Emoji.find_by_alias("grinning")
         when ":*"
           Emoji.find_by_alias("kissing")
         when ":|"
@@ -30,7 +35,7 @@ module WebRic
           Emoji.find_by_alias("open_mouth")
         end
         if emoji
-          %Q{<img alt="#{match}" src="/images/emoji/#{emoji.image_filename}" style="vertical-align:middle" wdith="25" height="25" />}
+          %Q{<img alt="#{match}" src="/images/emoji/#{emoji.image_filename}" style="vertical-align:middle" wdith="20" height="20" />}
         else
           match
         end

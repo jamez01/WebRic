@@ -1,161 +1,184 @@
-// Some helper functions
-function scrollDown() {
-  $('.scrolldown').each ( function () {
-    $(this).scrollTop($(this).prop("scrollHeight"));
-  });
-}
+var WebRic = {
+  config : {},
+  webSocket : {},
+  channels : {},
+  channel : function Channel(name) {
+    this.name = name;
+    this.messages = [];
+    this.users = [];
+  },
 
-function parseCommand(parsed) {
-  switch (parsed["command"]) {
-  case "privmsg":
-    privMsg(parsed['args']['nick'], parsed['args']['message']);
-    break;
-  case "systemmsg":
-    systemMsg(parsed['args']['head'], parsed['args']['message'])
-    break;
-  case "join":
-    systemMsg("join",parsed['args']['nick'] + " [" + parsed['args']['host'] + "]");
-//    sendCommand("names", {channel: parsed['args']['channel']});
-    break;
-  case "part":
-    systemMsg("part",parsed['args']['nick'] + " ["+ parsed['args']['host'] +"]");
-    break;
-  case "names":
-    updateNames(parsed['args']['users']);
-    break;
-  case "topic":
-    topic(parsed['args']['topic'])
-  }
-}
+  scrollDown : function() {
+    $('.scrolldown').each ( function() {
+      $(this).scrollTop($(this).prop("scrollHeight"));
+    });
+  },
 
+  handleInput : function() {
+    $('#inputbox').keypress(function(e) {
+     var key = e.which;
+     if(key == 13)  // the enter key code
+      {
+        WebRic.sendInput();
+        return false;
+      }
+    });
+  },
 
-// timeStamp function shamelessly ripped off from https://gist.github.com/hurjas/2660489
-function timeStamp() {
+  windowResizeConfig : function() {
+      $(window).resize(function() {
 
-// Create a date object with the current time
-  var now = new Date();
+      var sub = $('#chatContainer').offset().top + $('#inputRow').height() + 70;
+      $('body').height($(window).height() - sub);
+      $('html').height($(window).height() - sub);
+      $('.fill').each( function() {
+        $(this).height($(this).parent().height());
+      });
+      WebRic.scrollDown();
+    });
 
-// Create an array with the current hour, minute and second
-  var time = [ now.getHours(), now.getMinutes()];
+    $(window).trigger('resize');
 
-// Determine AM or PM suffix based on the hour
-  var suffix = ( time[0] < 12 ) ? "am" : "pm";
+  },
 
-// Convert hour from military time
-  time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+  connect : function() {
+    var Socket = "MozWebSocket" in window ? MozWebSocket : WebSocket;
+    this.webSocket = new Socket("ws://localhost:8383/");
 
-// If hour is 0, set it to 12
-  time[0] = time[0] || 12;
+    this.webSocket.onmessage = function(evt) {
+      var parsed = $.parseJSON(evt.data);
+      WebRic.parseCommand(parsed);
 
-// If seconds and minutes are less than 10, add a zero
-  for ( var i = 1; i < 3; i++ ) {
-    if ( time[i] < 10 ) {
-      time[i] = "0" + time[i];
+    };
+
+    this.webSocket.onclose = function(event) {
+      WebRic.systemMsg("ERROR", "Disconnected from WebRic Backend... Attempting to reconnect.");
+      setTimeout(function() { WebRic.connect(); }, 3000);
+    };
+
+    this.webSocket.onopen = function() {
+      $("#inputbox").focus();
+      WebRic.systemMsg("connected", "Connected to WebRic server.");
+      WebRic.sendCommand("setup",{server:'localhost', port:6667, nick:'WebRicTestBot'});
+    };
+  },
+
+  timeStamp : function() {
+
+  // Create a date object with the current time
+    var now = new Date();
+
+  // Create an array with the current hour, minute and second
+    var time = [ now.getHours(), now.getMinutes()];
+
+  // Determine AM or PM suffix based on the hour
+    var suffix = ( time[0] < 12 ) ? "am" : "pm";
+
+  // Convert hour from military time
+    time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+
+  // If hour is 0, set it to 12
+    time[0] = time[0] || 12;
+
+  // If seconds and minutes are less than 10, add a zero
+    for ( var i = 1; i < 3; i++ ) {
+      if ( time[i] < 10 ) {
+        time[i] = "0" + time[i];
+      }
     }
-  }
 
-// Return the formatted string
-  return time.join(":") + suffix;
+  // Return the formatted string
+    return time.join(":") + suffix;
+  },
+
+  parseCommand: function(parsed) {
+    if ("command_"+parsed["command"] in WebRic) {
+      WebRic['command_'+parsed["command"]](parsed['args']);
+    }
+  },
+
+  command_privmsg : function(args) {
+    this.privMsg(args['nick'], args['message']);
+  },
+
+  command_systemmsg : function(args) {
+    this.systemMsg(args['head'], args['message'])
+  },
+
+  command_join : function(args) {
+    this.systemMsg("join",args['nick'] + " [" + args['host'] + "]");
+  },
+
+  command_part : function(args) {
+    this.systemMsg("part",args['nick'] + " ["+ args['host'] +"]");
+  },
+
+  command_names : function(args) {
+    this.updateNames(args['users']);
+  },
+
+  command_topic : function(args) {
+    this.topic(args['topic'])
+  },
+
+  // Set Topic
+  topic : function(topic) {
+    this.addLine('<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="message">Channel topic set to '+topic+'</span></li>');
+    $('#topicMessage').text(topic);
+  },
+
+  // add private message to channel / query
+  privMsg : function(nick,message) {
+    this.addLine('<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="nick">&lt;'+nick+'&gt;</span><span class="message">'+message+'</span></li>');
+    this.scrollDown();
+  },
+
+  // add system message to current channel
+  systemMsg : function(head,message) {
+    this.addLine('<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="systemHead">-'+head+'-</span><span class="systemMessage">'+message+'</span></1li>');
+    this.scrollDown();
+  },
+
+  // addLine
+  addLine : function(html) {
+    $(html).appendTo('#msglist');
+  },
+
+  sendCommand : function(command,args) {
+    var cmd={};
+    cmd['command'] = command;
+    cmd['args'] = args;
+    this.webSocket.send(JSON.stringify(cmd));
+  },
+
+  sendInput : function(input) {
+    var value = $('#inputbox').val();
+    WebRic.sendCommand('privmsg',{channel: this.currentChannel, message: value});
+    $('#inputbox').val("");
+
+  },
+
+  updateNames : function(users) {
+    var user_list = $('#userlist');
+    var names = "";
+    $.each(users, function(index,user) {
+      names = names.concat("<li>"+user+"</li>");
+    });
+    user_list.html(names);
+  },
+
+  init : function(config) {
+    this.config = config || {};
+    this.config.webSocketURL = this.config.webSocketURL
+      || "ws://localhost:8080";
+
+    this.handleInput();
+    this.windowResizeConfig();
+    this.connect();
+    this.currentChannel = "#WebRicIRC"
+  },
+
+
 }
 
-// Set Topic
-function topic(topic) {
-  addLine('<li><span class="timestamp">&#91;'+timeStamp()+'&#93;</span><span class="message">Channel topic set to '+topic+'</span></li>');
-  $('#topicMessage').text(topic);
-}
-
-// add private message to channel / query
-function privMsg(nick,message) {
-  addLine('<li><span class="timestamp">&#91;'+timeStamp()+'&#93;</span><span class="nick">&lt;'+nick+'&gt;</span><span class="message">'+message+'</span></li>');
-  scrollDown();
-}
-
-// add system message to current channel
-function systemMsg(head,message) {
-  addLine('<li><span class="timestamp">&#91;'+timeStamp()+'&#93;</span><span class="systemHead">-'+head+'-</span><span class="systemMessage">'+message+'</span></1li>');
-  scrollDown();
-}
-
-// addLine
-function addLine(html) {
-  $(html).appendTo('#msglist');
-}
-
-function sendCommand(command,args) {
-  var cmd={};
-  cmd['command'] = command;
-  cmd['args'] = args;
-  ws.send(JSON.stringify(cmd));
-}
-
-function currentChannel(setChannel) {
-  var channel = setChannel || channel;
-  return "#WebRicIRC";
-}
-
-function sendInput(input) {
-  var value = $('#inputbox').val();
-  sendCommand('privmsg',{channel: currentChannel(), message: value});
-  $('#inputbox').val("");
-
-}
-
-function updateNames(users) {
-  var user_list = $('#userlist');
-  var names = "";
-  $.each(users, function (index,user) {
-    names = names.concat("<li>"+user+"</li>");
-  });
-  user_list.html(names);
-}
-// Make everything fit nicely
-$(window).resize(function() {
-
-  var sub = $('#chatContainer').offset().top + $('#inputRow').height() + 70;
-
-  $('body').height($(window).height() - sub);
-  $('html').height($(window).height() - sub);
-
-  $('.fill').each( function () {
-
-    $(this).height($(this).parent().height());
-
-  });
-
-  scrollDown();
-
-});
-
-$('#inputbox').keypress(function (e) {
- var key = e.which;
- if(key == 13)  // the enter key code
-  {
-    sendInput();
-    return false;
-  }
-});
-
-$(window).trigger('resize');
-
-// Web Sockets! Yay!
-var Socket = "MozWebSocket" in window ? MozWebSocket : WebSocket;
-var ws = new Socket("ws://localhost:8383/");
-ws.onmessage = function(evt) {
-  var parsed = $.parseJSON(evt.data);
-  parseCommand(parsed)
-
-};
-ws.onclose = function(event) {
-//  debug("Closed - code: " + event.code + ", reason: " + event.reason + ", wasClean: " + event.wasClean);
-  systemMsg("ERROR", "Disconnected from server.");
-  var ws = new Socket("ws://localhost:8383/");
-};
-ws.onopen = function() {
-//  debug("connected...");
-//  ws.send("hello server");
-//  ws.send("hello again");
-//  $('#connectDialog').modal({show: true});
-  $("#inputbox").focus();
-  systemMsg("connected", "Connected to WebRic server.");
-  sendCommand("setup",{server:'localhost', port:6667, nick:'WebRicTestBot'});
-};
+$(window).ready(function() { WebRic.init(); });
