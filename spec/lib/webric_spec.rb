@@ -1,5 +1,6 @@
 require 'spec_helper'
 require './em/chat.rb'
+require 'cinch/test'
 
 describe WebRic::Client do
   before :each do
@@ -18,13 +19,6 @@ describe WebRic::Client do
 
   it "can has socket" do
     expect(@client.socket).to eql(@ws)
-  end
-
-  it "sends IRC joins to websocket" do
-    user = double("User double", nick: "exampleUser", host: "example.com")
-    channel = double("Channel double")
-    expect(@client).to receive(:send_command).with(:join,{nick: "exampleUser", host: "example.com", channel: channel})
-    @client.on_join(user,channel)
   end
 
   it "sends system messages to websocket" do

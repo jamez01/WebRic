@@ -10,7 +10,6 @@ module WebRic
 
       def initialize(*)
         super
-        # @join_mutex = Mutex.new
         @webclient = config[:webclient]
       end
 
@@ -18,7 +17,7 @@ module WebRic
         # @webclient.on_join(m.user,m.channel)
         @webclient.send_command(:join, nick: m.user.nick, channel: m.channel, host: m.user.host)
         @webclient.names(m.channel)
-        @webclient.send_command(:topic, nick: m.user.nick, channel: m.channel, topic: m.channel.topic) if m.user.nick == @webclient.nick
+        @webclient.send_command(:topic, nick: m.user.nick, channel: m.channel, topic: m.channel.topic) if m.user.nick == @webclient.nick # Update topic
       end
 
       def on_part(m)
