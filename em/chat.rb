@@ -4,9 +4,9 @@ require 'cinch'
 require 'gemoji'
 
 require_relative 'lib/filters.rb'
-require_relative 'lib/connect.rb'
-require_relative 'lib/messages.rb'
-require_relative 'lib/join.rb'
+require_relative 'lib/plugins/connect.rb'
+require_relative 'lib/plugins/messages.rb'
+require_relative 'lib/plugins/join.rb'
 require_relative 'lib/commands.rb'
 
 module WebRic
@@ -77,17 +77,11 @@ module WebRic
     end
 
     private
-
     # wrapper methods
-
     def send_socket(msg)
       @ws.send(msg)
     end
-
-
   end
-
-
 end
 
 EventMachine.run do

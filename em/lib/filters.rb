@@ -9,7 +9,7 @@ module WebRic
     end
 
     def self.html(msg)
-      msg.gsub(/</,"&lt;").gsub(/</,"&gt;")
+      msg.gsub(/</,"&lt;").gsub(/>/,"&gt;")
     end
 
     def self.smilies(msg)
