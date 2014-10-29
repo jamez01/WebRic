@@ -27,7 +27,7 @@ describe WebRic::Client do
   end
 
   it "sends privmsg messages to websocket" do
-    expect(@client).to receive(:send_command).with(:privmsg, channel: "#test", message: "message", nick: "testUser")
+    expect(@client).to receive(:send_command).with(:privmsg, :nick=>"testUser", :channel=>"#test", :message=> "message")
     @client.privmsg("#test", "testUser","message")
   end
 

@@ -1,19 +1,58 @@
+require 'uri'
+
 module WebRic
-  module Filter
+  class Filter
 
-    def self.text(msg)
-      text = msg
-      text = html(text)
-      text = emoji(text)
-      text = smilies(text)
+    def initialize(msg)
+      @text = msg
+      @append = ""
+      html
+      images
+      links
+      emoji
+      smilies
+      append
     end
 
-    def self.html(msg)
-      msg.gsub(/</,"&lt;").gsub(/>/,"&gt;")
+    def to_s
+      @text
     end
 
-    def self.smilies(msg)
-      msg.gsub(/([:;])-?([\)\(DPO\*\|\\\/])/) do |match|
+    def include?(inc)
+      @text.include? inc
+    end
+
+    private
+
+    def append
+      @text << @append
+    end
+
+    def images
+      @text.scan(URI.regexp) do |*match|
+        begin
+          uri = URI.parse($&)
+          id = "image#{Time.now.to_i}"
+          @append << "<div class='media'>" << "<button type='button' class='btn btn-xs btn-info' data-toggle='collapse' data-target='##{id}'>Toggle Image</button>" << "<a target='_blank' href='#{uri}'><img id='#{id}' style='max-width: 250px; max-height: 250px;' src='#{uri}' class='media-object collapse in' /></a></div>" if uri.path =~ /(?:jpg|jpeg|bmp|png|gif|svg)$/
+        rescue
+        end
+      end
+    end
+
+    def links
+      @text.gsub!(URI.regexp) do |*match|
+        url=$&
+        url =~ /[a-zA-Z]+:\/\// ? "<a target='_blank' href='#{url}'>#{url}</a>" : url
+      end
+    end
+
+    def html
+      @text.gsub!(/</,"&lt;")
+      @text.gsub!(/>/,"&gt;")
+    end
+
+    def smilies
+      @text.gsub!(/(?<![a-z])([:;])-?([\)\(DPOo\*\|\\\/])(?!\w)/) do |match|
         emoji = case ($1 + $2)
         when ":)"
           Emoji.find_by_alias("smile")
@@ -42,8 +81,8 @@ module WebRic
       end
     end
 
-    def self.emoji(msg)
-      msg.gsub(/:([\w+-]+):/) do |match|
+    def emoji
+      @text.gsub!(/:([\w+-]+):/) do |match|
         if emoji = Emoji.find_by_alias($1.downcase)
           %Q{<img alt="#$1" src="/images/emoji/#{emoji.image_filename}" style="vertical-align:middle" width="20" height="20" />}
         else

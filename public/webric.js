@@ -8,6 +8,23 @@ var WebRic = {
     this.users = [];
   },
 
+  addChannel : function(chan) {
+    if( ! (chan in this.channels)) {
+      this.channels[chan] = new this.channel(chan);
+    }
+    this.updateChannels();
+  },
+
+  updateChannels : function() {
+    $('#channelList').html('');
+    for(var chan in this.channels) {
+      $('#channelList').append('<li><div class="btn-group">' +
+        '<a class="btn  navbar-btn btn-primary" data-toggle="tab">'+this.channels[chan].name+'</a>'+
+        '<a class="btn btn-primary navbar-btn dropdown-toggle"><span aria-hidden="true">&times;</span></a>' +
+        '</div></li>');
+    }
+  },
+
   scrollDown : function() {
     $('.scrolldown').each ( function() {
       $(this).scrollTop($(this).prop("scrollHeight"));
@@ -107,6 +124,7 @@ var WebRic = {
 
   command_join : function(args) {
     this.systemMsg("join",args['nick'] + " [" + args['host'] + "]");
+    this.addChannel(args['channel']);
   },
 
   command_part : function(args) {
@@ -124,7 +142,7 @@ var WebRic = {
   // Set Topic
   topic : function(topic) {
     this.addLine('<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="message">Channel topic set to '+topic+'</span></li>');
-    $('#topicMessage').text(topic);
+    $('#topicMessage').text(topic || "&nbsp;");
   },
 
   // add private message to channel / query

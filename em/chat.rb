@@ -67,7 +67,7 @@ module WebRic
     end
 
     def privmsg(channel,nick,message)
-      send_command(:privmsg, nick: nick, channel: channel , message: Filter.text(message))
+      send_command(:privmsg, nick: nick, channel: channel , message: "#{Filter.new(message)}")
     end
 
     # Send a command to the web client.
