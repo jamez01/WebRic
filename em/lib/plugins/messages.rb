@@ -31,7 +31,8 @@ module WebRic
 
       def on_notice(msg)
         @msg_mutex.synchronize do
-          @webclient.systemmsg("notice","&lt;#{msg.user.nick}&gt; #{msg.message}")
+          nick = msg.user ? msg.user.nick : 'server'
+          @webclient.systemmsg("notice","&lt;#{nick}&gt; #{msg.message}")
         end
       end
     end ## !-- End Messages Plugin

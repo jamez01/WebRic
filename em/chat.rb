@@ -28,7 +28,7 @@ module WebRic
     def setup(options)
       @nick = options['nick'] if options['nick']
       @server = options['server'] if options['server']
-      @port = options['port'] if options['port']
+      @port = options['port'].to_i if options['port']
       connect
     end
 
@@ -39,6 +39,7 @@ module WebRic
       @bot.configure do |c|
         c.server = @server
         c.nick = @nick
+        c.port = @port
         c.channels = ["#WebRicIRC"]
         c.plugins.plugins = plugins
         plugins.each do |plug|

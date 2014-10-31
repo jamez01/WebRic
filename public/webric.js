@@ -1,5 +1,18 @@
 var WebRic = {
-  config : {},
+  defOptions : {
+    server: 'irc.freenode.net',
+    port: 6667,
+    nick: 'webric'
+  },
+  options : {},
+  config : function(conf) {
+    urlOptions = {};
+    urlOptions['server'] = $.querystring['server'];
+    urlOptions['port'] = $.querystring['port'];
+    urlOptions['nick'] = $.querystring['port'];
+    urlOptions['channel'] = $.querystring['channel'];
+    this.options = $.extend(true, {}, this.defOptions, urlOptions, conf);
+  },
   webSocket : {},
   channels : {},
   channel : function Channel(name) {
@@ -74,9 +87,12 @@ var WebRic = {
     };
 
     this.webSocket.onopen = function() {
+      var server = $('#server').val();
+      var nick = $('#username').val();
+      var port = $('#port').val();
       $("#inputbox").focus();
       WebRic.systemMsg("connected", "Connected to WebRic server.");
-      WebRic.sendCommand("setup",{server:'localhost', port:6667, nick:'WebRicTestBot'});
+      WebRic.sendCommand("setup",{server: server, port: port, nick: nick});
     };
   },
 
@@ -142,7 +158,7 @@ var WebRic = {
   // Set Topic
   topic : function(topic) {
     this.addLine('<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="message">Channel topic set to '+topic+'</span></li>');
-    $('#topicMessage').text(topic || "&nbsp;");
+    $('#topicMessage').html(topic || "&nbsp;");
   },
 
   // add private message to channel / query
@@ -185,18 +201,54 @@ var WebRic = {
     user_list.html(names);
   },
 
+
+  showConnectModal : function() {
+    $('#connectDialog').modal('show');
+  },
+
+  setupConnectModal : function() {
+    $('#server').val(this.options['server']);
+    $('#port').val(this.options['port']);
+    $('#username').val(this.options['nick']);
+    $('#connectDialog').modal({ backdrop: 'static', keyboard: false});
+    $('#connectDialog').on('hidden.bs.modal', function(e) {
+      WebRic.connect();
+    });
+  },
+
   init : function(config) {
-    this.config = config || {};
+    config = typeof config !== 'undefined' ?  config : {}; // prevent undefined config
+    this.config(config);
     this.config.webSocketURL = this.config.webSocketURL
       || "ws://localhost:8080";
 
     this.handleInput();
     this.windowResizeConfig();
-    this.connect();
+    // this.connect();
+    this.setupConnectModal();
+    this.showConnectModal();
+    $('#connectDialog').modal({ backdrop: 'static', keyboard: false});
+    $('#connectDialog').modal('show');
+
     this.currentChannel = "#WebRicIRC"
   },
 
-
 }
 
-$(window).ready(function() { WebRic.init(); });
+$(function ($) {
+  $.querystring = (function (a) {
+    var i,
+    p,
+    b = {};
+    if (a === "") { return {}; }
+    for (i = 0; i < a.length; i += 1) {
+      p = a[i].split('=');
+      if (p.length === 2) {
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+      }
+    }
+    return b;
+  }(window.location.search.substr(1).split('&')));
+}(jQuery));
+
+$(window).ready(function() { WebRic.init({ server: 'localhost', port: 6668 }); });
