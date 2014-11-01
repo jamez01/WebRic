@@ -13,6 +13,7 @@ module WebRic
         # @webclient = config[:webclient]
         @webclient.systemmsg("CONNECTED", "To IRC Server")
       end
+
     end
   end
 end

@@ -4,6 +4,7 @@ require 'cinch'
 require 'gemoji'
 
 require_relative 'lib/filters.rb'
+require_relative 'lib/plugins/errors.rb'
 require_relative 'lib/plugins/connect.rb'
 require_relative 'lib/plugins/messages.rb'
 require_relative 'lib/plugins/join.rb'
@@ -33,7 +34,7 @@ module WebRic
     end
 
     def connect
-      plugins = [WebRic::Plugin::Connect,WebRic::Plugin::Messages,WebRic::Plugin::Join]
+      plugins = [WebRic::Plugin::Errors, WebRic::Plugin::Connect,WebRic::Plugin::Messages,WebRic::Plugin::Join]
       @bot = Cinch::Bot.new
 
       @bot.configure do |c|

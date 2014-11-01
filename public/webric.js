@@ -1,17 +1,31 @@
 var WebRic = {
   defOptions : {
-    server: 'irc.freenode.net',
-    port: 6667,
-    nick: 'webric'
+    userOptions : {
+      server: 'irc.freenode.net',
+      port: 6667,
+      nick: 'webric'
+    }
   },
   options : {},
   config : function(conf) {
-    urlOptions = {};
+
+    // Hide any any configuration UI elements that are pre-defined in init configuration as these should not be overided
+    if ( 'userOptions' in conf) {
+      for(var key in conf['userOptions'])  {
+        if(typeof key == 'string') {
+          var elementName = '#'+key+'Group';
+          $(elementName).hide();
+        }
+      }
+    }
+
+    var urlOptions = {};
     urlOptions['server'] = $.querystring['server'];
     urlOptions['port'] = $.querystring['port'];
-    urlOptions['nick'] = $.querystring['port'];
+    urlOptions['nick'] = $.querystring['nick'];
     urlOptions['channel'] = $.querystring['channel'];
-    this.options = $.extend(true, {}, this.defOptions, urlOptions, conf);
+    // set the options with default options having the lowest priority, then options specified in the url, and options specified at init with the highest priority
+    WebRic.options = $.extend(true, {}, this.defOptions, { userOptions: urlOptions }, conf );
   },
   webSocket : {},
   channels : {},
@@ -91,7 +105,7 @@ var WebRic = {
       var nick = $('#username').val();
       var port = $('#port').val();
       $("#inputbox").focus();
-      WebRic.systemMsg("connected", "Connected to WebRic server.");
+      WebRic.systemMsg("Loading", "WebRic backend...");
       WebRic.sendCommand("setup",{server: server, port: port, nick: nick});
     };
   },
@@ -251,4 +265,4 @@ $(function ($) {
   }(window.location.search.substr(1).split('&')));
 }(jQuery));
 
-$(window).ready(function() { WebRic.init({ server: 'localhost', port: 6668 }); });
+$(window).ready(function() { WebRic.init({ userOptions: { server: 'localhost', port: 6667 }}); });
