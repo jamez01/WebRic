@@ -3,12 +3,12 @@ var WebRic = {
     userOptions : {
       server: 'irc.freenode.net',
       port: 6667,
-      nick: 'webric'
+      nick: 'WebRic_' + new Date().getTime() // try to ensure default nick is unique
     }
   },
   options : {},
   config : function(conf) {
-
+    var queryOptions = new URI(window.location.href).search(true);
     // Hide any any configuration UI elements that are pre-defined in init configuration as these should not be overided
     if ( 'userOptions' in conf) {
       for(var key in conf['userOptions'])  {
@@ -19,13 +19,13 @@ var WebRic = {
       }
     }
 
-    var urlOptions = {};
-    urlOptions['server'] = $.querystring['server'];
-    urlOptions['port'] = $.querystring['port'];
-    urlOptions['nick'] = $.querystring['nick'];
-    urlOptions['channel'] = $.querystring['channel'];
+    // var urlOptions = {};
+    // urlOptions['server'] = $.querystring['server'];
+    // urlOptions['port'] = $.querystring['port'];
+    // urlOptions['nick'] = $.querystring['nick'];
+    // urlOptions['channel'] = $.querystring['channel'];
     // set the options with default options having the lowest priority, then options specified in the url, and options specified at init with the highest priority
-    WebRic.options = $.extend(true, {}, this.defOptions, { userOptions: urlOptions }, conf );
+    WebRic.options = $.extend(true, {}, this.defOptions, { userOptions: queryOptions }, conf );
   },
   webSocket : {},
   channels : {},
@@ -221,9 +221,9 @@ var WebRic = {
   },
 
   setupConnectModal : function() {
-    $('#server').val(this.options['server']);
-    $('#port').val(this.options['port']);
-    $('#username').val(this.options['nick']);
+    $('#server').val(this.options.userOptions.server);
+    $('#port').val(this.options.userOptions.port);
+    $('#username').val(this.options.userOptions.nick);
     $('#connectDialog').modal({ backdrop: 'static', keyboard: false});
     $('#connectDialog').on('hidden.bs.modal', function(e) {
       WebRic.connect();
@@ -248,21 +248,5 @@ var WebRic = {
   },
 
 }
-
-$(function ($) {
-  $.querystring = (function (a) {
-    var i,
-    p,
-    b = {};
-    if (a === "") { return {}; }
-    for (i = 0; i < a.length; i += 1) {
-      p = a[i].split('=');
-      if (p.length === 2) {
-        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
-      }
-    }
-    return b;
-  }(window.location.search.substr(1).split('&')));
-}(jQuery));
 
 $(window).ready(function() { WebRic.init({ userOptions: { server: 'localhost', port: 6667 }}); });
