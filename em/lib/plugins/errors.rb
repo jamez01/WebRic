@@ -1,5 +1,6 @@
 module WebRic
   module Plugin
+    # Display errors received from IRC server to web client
     class Errors
       include Cinch::Plugin
       listen_to :error,  :method => :on_error

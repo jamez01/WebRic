@@ -1,5 +1,6 @@
 module WebRic
   module Plugin
+    # Handle initial connection to IRC
     class Connect
       include Cinch::Plugin
       listen_to :connect,  :method => :on_connect

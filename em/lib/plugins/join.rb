@@ -1,6 +1,6 @@
 module WebRic
   module Plugin
-    ## Join Plugin
+    # Handle on joins, parts, and other channel only related functions
     class Join
       include Cinch::Plugin
 

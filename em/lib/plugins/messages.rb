@@ -1,6 +1,6 @@
 module WebRic
   module Plugin
-    ## Messages Plugin
+    # Handle all incoming messages from IRC
     class Messages
       include Cinch::Plugin
 

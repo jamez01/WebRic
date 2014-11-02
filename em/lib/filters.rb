@@ -1,8 +1,11 @@
 require 'uri'
 
+# Modifies content before sending it to web client
+# Use as "#{Filter.new(<message>)}" to convert directly to string and forget
 module WebRic
   class Filter
 
+    # Run all the filters on the message
     def initialize(msg)
       @text = msg
       @append = ""
@@ -14,20 +17,24 @@ module WebRic
       append
     end
 
+    # Return the filtered messages
     def to_s
       @text
     end
 
+    # Included to help rspec tests pass
     def include?(inc)
       @text.include? inc
     end
 
     private
 
+    # Text is included at end of line instead of parsed in place. Useful for displaying images, etc.
     def append
       @text << @append
     end
 
+    # Find HTML links to images, append image to end of text.
     def images
       @text.scan(URI.regexp) do |*match|
         begin
@@ -39,6 +46,7 @@ module WebRic
       end
     end
 
+    # Find HTML links and link them
     def links
       @text.gsub!(URI.regexp) do |*match|
         url=$&
@@ -46,11 +54,13 @@ module WebRic
       end
     end
 
+    # Convert < and > to respective HTML codes to prevent HTML injection
     def html
       @text.gsub!(/</,"&lt;")
       @text.gsub!(/>/,"&gt;")
     end
 
+    # Convert smilies (:)) to images
     def smilies
       @text.gsub!(/(?<![a-z])([:;])-?([\)\(DPOo\*\|\\\/])(?!\w)/) do |match|
         emoji = case ($1 + $2)
@@ -81,6 +91,7 @@ module WebRic
       end
     end
 
+    # Convert EMOJI to images
     def emoji
       @text.gsub!(/:([\w+-]+):/) do |match|
         if emoji = Emoji.find_by_alias($1.downcase)

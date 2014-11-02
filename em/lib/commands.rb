@@ -23,6 +23,7 @@ module WebRic
       privmsg(channel,@bot.nick,msg)
     end
 
+    # Send unknown IRC commands to IRC server
     def command_raw(args)
 
     end
