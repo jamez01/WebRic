@@ -47,6 +47,7 @@ body {
   margin-bottom: 5px;
 }
 
+.closechan { padding-left: 5px !important; padding-right: 0px !important; margin-right: 0px !important; }
 
 .timestamp { color:#606060; padding: 0px 4px 0px 4px; display: inline; font-size: small;}
 .nick { padding: 0px 4px 0px 4px; color: #5555FF; display: inline;}

@@ -68,7 +68,7 @@ module WebRic
     def names(channel)
       target=@bot.Channel(channel)
       users = target.users.map { |u,m| "#{'@' if m.include? "o" }#{'+' if m.include? "v"}#{u}"}.sort
-      send_command("names",users: users)
+      send_command("names",users: users, channel: channel)
     end
 
     # Send errors, notices, etc to client

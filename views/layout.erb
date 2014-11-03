@@ -26,7 +26,7 @@
 </head>
 
 <body>
-  <div class="modal fade" id="connectDialog" role="dialog">
+  <div class="modal" id="connectDialog" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -89,9 +89,9 @@
   <div class="container-fluid fill" id='chatContainer'>
     <div class="row fill" id="chatRow">
       <div class="col-md-10 fill scrolldown" id='chatCol'>
-        <ul class='list-unstyled' id='msglist'>
-          <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" id="CHANNEL_WebRicIRC">Test</div>
+        <ul class='list-unstyled'>
+          <div class="tab-content" id='msglist'>
+            <div role="tabpanel" class="tab-pane fade in" id="tab_server"></div>
           </div>
         </ul>
       </div>
@@ -104,8 +104,8 @@
       <div class="container-fluid navbar-btn">
         <div class="form-group"  id="chatInput">
           <div class="input-group">
-            <input type="text" id="inputbox" class="form-control" autocomplete=off>
-            <span class="input-group-addon">Send</span>
+            <input type="text" id="inputBox" class="form-control" autocomplete=off>
+            <a id="inputSend" class='input-group-addon btn btn-xs btn-default' href="#">Send</a>
           </div>
         </div>
       </div>

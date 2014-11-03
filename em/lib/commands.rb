@@ -2,11 +2,17 @@ module WebRic
   # Commands that can be sent from the web client.
   module Commands
     # Parse and delegate incomming commands from web client
+
     def parse_command(hash)
       command = hash['command']
       args = hash['args']
       puts "Invalid command: command_#{command}".to_sym unless self.respond_to?("command_#{command}")
-      self.method("command_#{command}".to_sym).call(args) if self.respond_to?("command_#{command}")
+      begin
+        EM.defer {
+          self.method("command_#{command}".to_sym).call(args) if self.respond_to?("command_#{command}")
+        }
+      rescue
+      end
     end
 
     # Configure server, nick, etc, and connect.
@@ -21,6 +27,17 @@ module WebRic
       target = @bot.Target(channel)
       target.send(msg)
       privmsg(channel,@bot.nick,msg)
+    end
+
+    # Join a channel
+    def command_join(args)
+      @bot.join(args['args']) if args['args'] && args['args'][0] == "#" # join if actual channel
+    end
+
+    # Leave a channel
+    def command_part(args)
+      target=@bot.Channel(args['args'])
+      target.part
     end
 
     # Send unknown IRC commands to IRC server
