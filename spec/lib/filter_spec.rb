@@ -1,5 +1,5 @@
 require 'spec_helper'
-require './em/chat.rb'
+require './webric.rb'
 
 describe WebRic::Filter do
   it "sanatizes html tags" do

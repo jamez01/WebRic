@@ -1,14 +1,13 @@
 require 'spec_helper'
-require './em/chat.rb'
+require './webric.rb'
 require 'cinch/test'
 
 describe WebRic::Client do
   before :each do
     @ws = double("Web Socket",send: true)
-    @cinch = instance_double("Cinch::Bot",start: true)
     @client = WebRic::Client.new(@ws)
   end
-
+  
   it "can bet setup" do
     expect(@client).to receive(:connect)
     @client.setup('nick' => 'test_nick', 'server' => 'irc.test.com', 'port' => 6667)
@@ -31,8 +30,4 @@ describe WebRic::Client do
     @client.privmsg("#test", "testUser","message")
   end
 
-  it "can parse a valid command" do
-    expect(@client).to receive(:command_privmsg)
-    @client.parse_command({'command' => 'privmsg', 'args' => ["Test"]})
-  end
 end
