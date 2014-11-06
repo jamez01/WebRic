@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'sinatra'
 gem 'eventmachine'
 gem 'cinch'
 gem 'em-websocket'

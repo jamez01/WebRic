@@ -46,7 +46,6 @@ var WebRic = {
         $('#msglist').append('<div role="tabpanel" class="tab-pane fade scrolldown" id="tab_'+this.sanatizeChannelName(chan)+'"></div>');
       }
     }
-    this.currentChannel = chan;
     this.updateChannels();
   },
 
