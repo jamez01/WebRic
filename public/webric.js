@@ -31,6 +31,7 @@ var WebRic = {
   channel : function Channel(name) {
     this.name = name;
     this.users = [];
+    this.topic = "";
   },
 
   // element IDs begining with # will confuse browsers. FIX it.
@@ -71,6 +72,7 @@ var WebRic = {
       WebRic.currentChannel = channel;
       $('#button_'+WebRic.sanatizeChannelName(channel)).addClass('btn-primary');
       $('#button_'+WebRic.sanatizeChannelName(channel)).removeClass('btn-danger');
+      if(href != "server") { $('#topicMessage').html(WebRic.channels[channel].topic || "&nbsp;"); }
       WebRic.showNames();
       WebRic.scrollDown();
     });
@@ -188,6 +190,11 @@ var WebRic = {
     this.privMsg(args['channel'],args['nick'], args['message']);
   },
 
+  // Channel / Private actions
+  command_action : function(args) {
+    this.privAction(args['channel'],args['nick'], args['message']);
+  },
+
   // Display system messages (errors, notices, etc)
   command_systemmsg : function(args) {
     this.systemMsg(args['head'], args['message'])
@@ -196,12 +203,12 @@ var WebRic = {
   // Handle users joining channels
   command_join : function(args) {
     this.addChannel(args['channel']);
-    this.systemMsg("join",args['nick'] + " [" + args['host'] + "]");
+    this.addLine(args['channel'],'<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="action star glyphicon glyphicon-log-in"></span><span class="nick">'+args['nick']+'</span><span class="action join">has joined '+args['channel']+'</span></li>');
   },
 
   // Handle users leaving channels
   command_part : function(args) {
-    this.systemMsg("part",args['nick'] + " ["+ args['host'] +"]");
+    this.addLine(args['channel'],'<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="action star glyphicon glyphicon-log-out"></span><span class="nick">'+args['nick']+'</span><span class="action join">has left '+args['channel']+'</span></li>');
   },
 
   // Websocket is sending a list of users on a channel
@@ -216,14 +223,20 @@ var WebRic = {
 
   // Set Topic in UI
   topic : function(channel,topic) {
-    this.addLine(channel,this.currentChannel,'<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="message">Channel topic set to '+topic+'</span></li>');
-    $('#topicMessage').html(topic || "&nbsp;");
+    this.addLine(channel,'<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="message">Channel topic set to \''+topic+'\'</span></li>');
+    this.channels[channel].topic = topic
   },
 
   // add private message to channel / query UI
   privMsg : function(channel,nick,message) {
     var chan = channel || this.currentChannel
     this.addLine(chan,'<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="nick">&lt;'+nick+'&gt;</span><span class="message">'+message+'</span></li>');
+  },
+
+  // add actions to UI
+  privAction : function(channel,nick,message) {
+    var chan = channel || this.currentChannel
+    this.addLine(chan,'<li><span class="timestamp">&#91;'+this.timeStamp()+'&#93;</span><span class="action star glyphicon glyphicon-asterisk"></span><span class="nick">'+nick+'</span><span class="message">'+message+'</span></li>');
   },
 
   // add system message to current channel

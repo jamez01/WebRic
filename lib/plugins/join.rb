@@ -14,7 +14,6 @@ module WebRic
       end
 
       def on_join(m)
-        # @webclient.on_join(m.user,m.channel)
         @webclient.send_command(:join, nick: m.user.nick, channel: m.channel, host: m.user.host)
         @webclient.names(m.channel)
         @webclient.send_command(:topic, nick: m.user.nick, channel: m.channel, topic: m.channel.topic) if m.user.nick == @webclient.nick # Update topic
@@ -23,7 +22,7 @@ module WebRic
       def on_part(m)
         # @webclient.on_part(m.user,m.channel)
         @webclient.send_command(:part, nick: m.user.nick, channel: m.channel, host: m.user.host)
-        @webclient.names(m.channel)
+        @webclient.names(m.channel) unless m.user.nick == bot.nick
       end
 
       def on_topic(m)

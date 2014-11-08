@@ -31,7 +31,10 @@ module WebRic
 
     # Join a channel
     def command_join(args)
-      bot.join(args['args']) if args['args'] && args['args'][0] == "#" # join if actual channel
+      return unless args['args']
+      args['args'].split(/[,\s]/).each { |channel|
+        bot.join(channel) if channel.start_with? "#" # join if actual channel
+      }
     end
 
     # Leave a channel

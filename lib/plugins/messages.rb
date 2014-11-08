@@ -25,7 +25,7 @@ module WebRic
         return unless msg.message =~ /^\u0001ACTION(.*?)\u0001/
         action = $1.strip
         @msg_mutex.synchronize do
-          @webclient.privmsg(msg.channel, msg.user.nick, action)
+          @webclient.action(msg.channel, msg.user.nick, action)
         end
       end
 

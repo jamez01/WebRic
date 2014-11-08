@@ -42,6 +42,8 @@ module WebRic
 
       # Configure Cinch
       @bot.configure do |c|
+        c.message_split_end = ""
+        c.message_split_start = ""
         c.server = @server
         c.nick = @nick
         c.port = @port
@@ -79,6 +81,11 @@ module WebRic
     # Send channel messages / private messages
     def privmsg(channel,nick,message)
       send_command(:privmsg, nick: nick, channel: channel , message: "#{Filter.new(message)}")
+    end
+
+    # Send channel messages / private messages
+    def action(channel,nick,message)
+      send_command(:action, nick: nick, channel: channel , message: "#{Filter.new(message)}")
     end
 
     # Send a command to the web client.

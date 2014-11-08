@@ -22,7 +22,7 @@ body {
     }
 
 #topicBar {
-  padding: 2px 0px 2px 0px;
+  padding: 2px 0px 2px 15px;
   margin: -5px -15px 2px -15px;
   background-color: #375A7F;
   background-color: #26496E;
@@ -55,3 +55,7 @@ body {
 
 .systemHead { padding: 0px 4px 0px 4px; display: inline; color: #FF3333 }
 .systemMessage { padding: 0px 4px 0px 4px; display: inline; color: #BB3333}
+
+.action { padding 0px 4px 0px 4px;}
+.action.star { font-size: 10px; padding: 0px 4px 0px 4px; color: #33BB33;display: inline;}
+.action.join { color: #33BB33; display: inline; }
