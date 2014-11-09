@@ -12,7 +12,17 @@ var WebRic = {
   // Create hash for options (merged defaults, provided configs, and user configs)
   options : {},
   // Actual method to handle configuration
-  config : function(conf) {
+  config : function() {
+    // Load config.json file
+    var conf;
+    $.ajax({
+      url: 'config.json',
+      async: false,
+      dataType: 'json',
+      success: function (json) {
+        conf = json;
+      }
+    });
     var queryOptions = new URI(window.location.href).search(true);
     // Hide any any configuration UI elements that are pre-defined in init configuration as these should not be overided
     if ( 'userOptions' in conf) {
@@ -75,6 +85,7 @@ var WebRic = {
       if(href != "server") { $('#topicMessage').html(WebRic.channels[channel].topic || "&nbsp;"); }
       WebRic.showNames();
       WebRic.scrollDown();
+      $("#inputBox").focus();
     });
 
     // ensure all channels can be closed
@@ -253,6 +264,11 @@ var WebRic = {
       $('#button_'+this.sanatizeChannelName(chan)).removeClass('btn-primary');
       $('#button_'+this.sanatizeChannelName(chan)).addClass('btn-danger');
     }
+
+    console.log(this.window_focus);
+    if ( chan != this.currentChannel || this.window_focus === false) {
+      $('#notification_sound')[0].play(); // Plays sound.
+    }
     this.scrollDown();
   },
 
@@ -330,8 +346,18 @@ var WebRic = {
     });
   },
 
+  window_focus: true,
+
+  window_focus_init: function() {
+    window.onblur = function() { WebRic.window_focus = false; }
+    window.onfocus = function() { WebRic.window_focus = true; }
+    document.onblur = window.onblur;
+    document.focus = window.focus;
+  },
+
+
   // Initialize WebRic
-  init : function(config) {
+  init : function() {
     // Set config
     config = typeof config !== 'undefined' ?  config : {}; // prevent undefined config
     this.config(config);
@@ -341,6 +367,7 @@ var WebRic = {
     //   || "ws://localhost:8080";
     this.handleInput(); // Register input handlers
     this.windowResizeConfig(); // Configure window resize handling
+    this.window_focus_init();
     this.setupConnectModal(); // Setup the modal for user configured IRC paramaters
     if(! this.options['autoConnect'] === true) {
       this.showConnectModal(); // Display connect modal
@@ -355,4 +382,4 @@ var WebRic = {
 }
 
 // Load up WebRic.
-$(window).ready(function() { WebRic.init({ autoConnect: true, userOptions: { server: 'localhost', port: 6667 }}); });
+$(window).ready(function() { WebRic.init(); }); //{ autoConnect: true, userOptions: { server: 'localhost', port: 6667 }}); });
