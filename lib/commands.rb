@@ -29,6 +29,21 @@ module WebRic
       privmsg(channel,bot.nick,msg)
     end
 
+    # handle /msg
+    def command_msg(args)
+      target,msg = args.split(/\s/,2)
+      begin
+        @bot.Target(target).send(msg)
+      rescue
+        systemmsg("error","No such channel or user, #{target}")
+      end
+    end
+
+    # Handle /me
+    def command_me(args)
+      
+    end
+
     # Join a channel
     def command_join(args)
       return unless args['args']

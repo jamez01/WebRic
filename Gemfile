@@ -11,4 +11,5 @@ group :test do
   gem 'rspec'
   gem 'cinch-test'
   gem 'rspec-eventmachine'
+  gem 'guard'
 end

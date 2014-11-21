@@ -62,7 +62,7 @@ var WebRic = {
 
   // Display channel tabs in UI
   updateChannels : function() {
-    $('#channelList').html('<li><a class="btn navbar-btn btn-primary scrolldown" role="tab" data-toggle="tab" href="#tab_server">Server</a></li>');
+    $('#channelList').html('<li><a class="btn navbar-btn btn-primary scrolldown" role="tab" data-toggle="tab" href="#tab___Server">Server</a></li>');
 
     for(var chan in this.channels) {
       $('#channelList').append('<li>' +
@@ -79,10 +79,11 @@ var WebRic = {
     $('#channelList a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
       var href=$(e.target).attr('href').substr(5);
       var channel=$(e.target).attr('href').substr(5).replace(/^CHANNEL_/,"#");
+      console.log(href);
       WebRic.currentChannel = channel;
       $('#button_'+WebRic.sanatizeChannelName(channel)).addClass('btn-primary');
       $('#button_'+WebRic.sanatizeChannelName(channel)).removeClass('btn-danger');
-      if(href != "server") { $('#topicMessage').html(WebRic.channels[channel].topic || "&nbsp;"); }
+      if(href != "__Server") { $('#topicMessage').html(WebRic.channels[channel].topic || "&nbsp;"); }
       WebRic.showNames();
       WebRic.scrollDown();
       $("#inputBox").focus();
@@ -97,7 +98,10 @@ var WebRic = {
         WebRic.sendCommand('part',{ args: channel });
         delete WebRic.channels[channel];
       }
+      WebRic.addLine(channel,"<hr/>");
+      $(this).parent().parent().prev().children('a').tab('show');
       $(this).parent().remove();
+
     });
 
 
@@ -260,12 +264,16 @@ var WebRic = {
     var chan = channel || this.currentChannel
     $(html).appendTo('#tab_'+this.sanatizeChannelName(chan));
     if( ! (chan === this.currentChannel)) {
-      console.log(chan)
       $('#button_'+this.sanatizeChannelName(chan)).removeClass('btn-primary');
       $('#button_'+this.sanatizeChannelName(chan)).addClass('btn-danger');
     }
 
-    console.log(this.window_focus);
+    // If a private message comes in, make sure tab exists.
+    if ( ! channel.match(/^#/) && channel != "__Server" ) {
+      this.addChannel(channel);
+    }
+
+    // Play alert if needed
     if ( chan != this.currentChannel || this.window_focus === false) {
       $('#notification_sound')[0].play(); // Plays sound.
     }
@@ -307,7 +315,7 @@ var WebRic = {
 
   // show user names in list
   showNames : function() {
-    if(WebRic.currentChannel === 'server') {
+    if(WebRic.currentChannel === '__Server') {
       $('#userlist').html('');
     } else {
       $('#userlist').html(WebRic.channels[WebRic.currentChannel].users);
@@ -374,7 +382,7 @@ var WebRic = {
     } else {
       this.connect();
     }
-    this.currentChannel = "server"; // This will be auto-configured at some point....
+    this.currentChannel = "__Server"; // This will be auto-configured at some point....
     this.updateChannels();
 
   },

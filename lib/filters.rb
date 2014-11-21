@@ -40,7 +40,9 @@ module WebRic
         begin
           uri = URI.parse($&)
           id = "image#{Time.now.to_i}"
-          @append << "<div class='media'>" << "<button type='button' class='btn btn-xs btn-info' data-toggle='collapse' data-target='##{id}'>Toggle Image</button>" << "<a target='_blank' href='#{uri}'><img id='#{id}' style='max-width: 250px; max-height: 250px;' src='#{uri}' class='media-object collapse in' /></a></div>" if uri.path =~ /(?:jpg|jpeg|bmp|png|gif|svg)$/
+          @append << "<div class='media'>" <<
+            "<button type='button' class='btn btn-xs btn-info' data-toggle='collapse' data-target='##{id}'>Toggle Image</button>" <<
+            "<a target='_blank' href='#{uri}'><img id='#{id}' style='max-width: 250px; max-height: 250px;' src='#{uri}' class='media-object collapse in' /></a></div>" if uri.path =~ /(?:jpg|jpeg|bmp|png|gif|svg)$/
         rescue
         end
       end
