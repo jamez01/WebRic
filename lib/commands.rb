@@ -8,9 +8,7 @@ module WebRic
       args = hash['args']
       puts "Invalid command: command_#{command}".to_sym unless self.respond_to?("command_#{command}")
       begin
-        EM.defer {
-          self.method("command_#{command}".to_sym).call(args)
-        } if self.respond_to?("command_#{command}")
+          self.method("command_#{command}".to_sym).call(args) if self.respond_to?("command_#{command}")
       rescue
       end
     end

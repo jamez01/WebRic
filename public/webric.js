@@ -25,7 +25,7 @@ var WebRic = {
     });
     var queryOptions = new URI(window.location.href).search(true);
     // Hide any any configuration UI elements that are pre-defined in init configuration as these should not be overided
-    if ( 'userOptions' in conf) {
+    if ( conf && 'userOptions' in conf) {
       for(var key in conf['userOptions'])  {
         if(typeof key == 'string') {
           var elementName = '#'+key+'Group';

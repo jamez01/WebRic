@@ -33,10 +33,17 @@ body {
   width: 100%;
   border-bottom-style: groove;
 }
-#users { border-left-style: groove; padding-left: 15px; }
+#users {
+  border-left-style: groove;
+  padding-left: 15px;
+  overflow-x: auto;
+  overflow-y: auto;
+  word-wrap: normal;
+  white-space: normal;
+}
 #inputRow { margin-top: 15px; }
 #chatCol {
-  overflow-x: auto;
+  overflow-x: none;
   overflow-y: auto;
   word-wrap: normal;
   white-space: normal;
