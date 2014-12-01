@@ -79,7 +79,6 @@ var WebRic = {
     $('#channelList a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
       var href=$(e.target).attr('href').substr(5);
       var channel=$(e.target).attr('href').substr(5).replace(/^CHANNEL_/,"#");
-      console.log(href);
       WebRic.currentChannel = channel;
       $('#button_'+WebRic.sanatizeChannelName(channel)).addClass('btn-primary');
       $('#button_'+WebRic.sanatizeChannelName(channel)).removeClass('btn-danger');
@@ -90,18 +89,24 @@ var WebRic = {
     });
 
     // ensure all channels can be closed
-    $('button.closechan').click(function () {
-      var href=$(this).parent().attr('href').substr(5);
-      var channel=$(this).parent().attr('href').substr(5).replace(/^CHANNEL_/,"#");
+    $('button.closechan').on('click',function () {
+      var tabId = $(this).parents('li').children('a').attr('href');
+
+      var channel = tabId.substr(5).replace(/^CHANNEL_/,"#");
       // only send part command if tab is actually a channel.
       if (channel.match(/^#/)) {
-        WebRic.sendCommand('part',{ args: channel });
-        delete WebRic.channels[channel];
-      }
-      WebRic.addLine(channel,"<hr/>");
-      $(this).parent().parent().prev().children('a').tab('show');
-      $(this).parent().remove();
+         WebRic.sendCommand('part',{ args: channel });
+       }
 
+      // Switch tabs if closing current tab
+      if (WebRic.currentChannel === channel) {
+        $(this).parents('li').prev().children('a').tab('show');
+      }
+
+      // Remove Channel and tabs
+      delete WebRic.channels[channel];
+      $(this).parents('li').remove('li');
+      $(tabId).remove();
     });
 
 
@@ -202,12 +207,14 @@ var WebRic = {
 
   // Channel / Private messages
   command_privmsg : function(args) {
-    this.privMsg(args['channel'],args['nick'], args['message']);
+    var chan = args['channel'] || args['nick'];
+    this.privMsg(chan,args['nick'], args['message']);
   },
 
   // Channel / Private actions
   command_action : function(args) {
-    this.privAction(args['channel'],args['nick'], args['message']);
+    var chan = args['channel'] || args['nick'];
+    this.privAction(chan,args['nick'], args['message']);
   },
 
   // Display system messages (errors, notices, etc)
@@ -262,15 +269,15 @@ var WebRic = {
   // addLine of text to element
   addLine : function(channel,html) {
     var chan = channel || this.currentChannel
+    // If a private message comes in, make sure tab exists.
+    if ( ! channel.match(/^#/) && channel != "__Server" ) {
+      this.addChannel(channel);
+    }
+
     $(html).appendTo('#tab_'+this.sanatizeChannelName(chan));
     if( ! (chan === this.currentChannel)) {
       $('#button_'+this.sanatizeChannelName(chan)).removeClass('btn-primary');
       $('#button_'+this.sanatizeChannelName(chan)).addClass('btn-danger');
-    }
-
-    // If a private message comes in, make sure tab exists.
-    if ( ! channel.match(/^#/) && channel != "__Server" ) {
-      this.addChannel(channel);
     }
 
     // Play alert if needed
@@ -302,7 +309,9 @@ var WebRic = {
 
   sendInput : function(input) {
     var value = $('#inputBox').val();
-    if(value.substring(0,1) === "/") {
+    if(value.substring(0,3) === "/me") {
+      WebRic.sendCommand('me', {channel: this.currentChannel, message: value.substring(4) } )
+    } else if(value.substring(0,1) === "/") {
       v = this.split(value.substring(1)," ", 1);
       var command=v[0]
       var string=v[1]
@@ -370,9 +379,7 @@ var WebRic = {
     config = typeof config !== 'undefined' ?  config : {}; // prevent undefined config
     this.config(config);
 
-    // // Create Socket
-    // this.config.webSocketURL = this.config.webSocketURL
-    //   || "ws://localhost:8080";
+    $('.nav-tabs').tab();
     this.handleInput(); // Register input handlers
     this.windowResizeConfig(); // Configure window resize handling
     this.window_focus_init();
@@ -382,7 +389,7 @@ var WebRic = {
     } else {
       this.connect();
     }
-    this.currentChannel = "__Server"; // This will be auto-configured at some point....
+    this.currentChannel = "__Server";
     this.updateChannels();
 
   },
@@ -390,4 +397,4 @@ var WebRic = {
 }
 
 // Load up WebRic.
-$(window).ready(function() { WebRic.init(); }); //{ autoConnect: true, userOptions: { server: 'localhost', port: 6667 }}); });
+$(document).ready(function() { WebRic.init(); }); //{ autoConnect: true, userOptions: { server: 'localhost', port: 6667 }}); });

@@ -31,7 +31,7 @@ module WebRic
 
     # handle /msg
     def command_msg(args)
-      target,msg = args.split(/\s/,2)
+      target,msg = args['args'].split(/\s/,2)
       begin
         @bot.Target(target).send(msg)
       rescue
@@ -41,7 +41,11 @@ module WebRic
 
     # Handle /me
     def command_me(args)
-      
+      channel=args['channel']
+      message=args['message']
+      target=bot.Target(channel)
+      target.action(message)
+      action(channel,bot.nick,message)
     end
 
     # Join a channel
