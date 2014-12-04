@@ -68,7 +68,7 @@ module WebRic
 
     # Send list of users in channel to websocket
     def names(channel)
-      target=@bot.Channel(channel)
+      target = bot.Channel(channel)
       users = target.users.map { |u,m| "#{'@' if m.include? "o" }#{'+' if m.include? "v"}#{u}"}.sort
       send_command("names",users: users, channel: channel)
     end

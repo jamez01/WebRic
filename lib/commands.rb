@@ -31,7 +31,7 @@ module WebRic
     def command_msg(args)
       target,msg = args['args'].split(/\s/,2)
       begin
-        @bot.Target(target).send(msg)
+        bot.Target(target).send(msg)
       rescue
         systemmsg("error","No such channel or user, #{target}")
       end
@@ -50,7 +50,7 @@ module WebRic
     def command_join(args)
       return unless args['args']
       args['args'].split(/[,\s]/).each { |channel|
-        bot.join(channel) if channel.start_with? "#" # join if actual channel
+        bot.join(channel.strip) if channel.strip.start_with? "#" # join if actual channel
       }
     end
 

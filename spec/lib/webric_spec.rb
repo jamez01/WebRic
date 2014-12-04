@@ -7,7 +7,7 @@ describe WebRic::Client do
     @ws = double("Web Socket",send: true)
     @client = WebRic::Client.new(@ws)
   end
-  
+
   it "can bet setup" do
     expect(@client).to receive(:connect)
     @client.setup('nick' => 'test_nick', 'server' => 'irc.test.com', 'port' => 6667)
@@ -30,4 +30,18 @@ describe WebRic::Client do
     @client.privmsg("#test", "testUser","message")
   end
 
+  it "can list names" do
+    channel = double("Channel", :users => {"TestUser"=>"o"})
+    bot = double("Cinch Bot", Channel: channel)
+
+    allow(@client).to receive(:bot).and_return(bot)
+
+    expect(@client).to receive(:send_command).with("names",{:channel => "#WebRicIRC", :users => ["@TestUser"] })
+    @client.names("#WebRicIRC")
+  end
+
+  it "can handle actions" do
+    expect(@client).to receive(:send_command).with(:action,  {:nick=>"TestUser", :channel=>"#WebRicIRC", :message=>"test"})
+    @client.action("#WebRicIRC","TestUser","test")
+  end
 end

@@ -43,7 +43,7 @@ body {
 }
 #inputRow { margin-top: 15px; }
 #chatCol {
-  overflow-x: none;
+  overflow-x: auto;
   overflow-y: auto;
   word-wrap: normal;
   white-space: normal;
