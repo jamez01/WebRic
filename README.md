@@ -8,6 +8,8 @@ The frontend is written in javascript using [BootStrap](http://getbootstrap.com/
 
 WebRic is still in very early development and is not quite ready for production use, but feel free to play with it, fork it, and contribute to it!
 
+Please visit [WebRicIRC.com](http://chat.WebRicIRC.com/) for a live demo.
+
 ## Features
 * Tabbed Channels
 * Notification Sounds
