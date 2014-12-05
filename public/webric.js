@@ -42,6 +42,7 @@ var WebRic = {
     this.name = name;
     this.users = [];
     this.topic = "";
+    this.alerting = false;
   },
 
   // element IDs begining with # will confuse browsers. FIX it.
@@ -73,6 +74,11 @@ var WebRic = {
         'class="btn navbar-btn btn-primary chantab" role="tab" data-toggle="tab" data-name="'+this.channels[chan].name+'" href="#tab_'+this.sanatizeChannelName(this.channels[chan].name)+'">'+
         '<button class="close closechan" type="button"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>'+chan+'</a>'+
         '</li>');
+        if ( WebRic.channels[chan].alerting === true ) {
+          $('#button_'+this.sanatizeChannelName(chan)).removeClass('btn-primary');
+          $('#button_'+this.sanatizeChannelName(chan)).addClass('btn-danger');
+        }
+
     }
 
     $("a[href=#tab_"+this.sanatizeChannelName(this.currentChannel)+"]").tab('show'); // Make sure current channel is displayed
@@ -84,6 +90,7 @@ var WebRic = {
       // var channel=$(e.target).attr('href').substr(5).replace(/^CHANNEL_/,"#");
       var channel=$(e.target).attr('data-name');
       WebRic.currentChannel = channel;
+      WebRic.channels[channel].alerting = false;
       $('#button_'+WebRic.sanatizeChannelName(channel)).addClass('btn-primary');
       $('#button_'+WebRic.sanatizeChannelName(channel)).removeClass('btn-danger');
       if(href != "__Server") { $('#topicMessage').html(WebRic.channels[channel].topic || "&nbsp;"); }
@@ -280,6 +287,7 @@ var WebRic = {
 
     $(html).appendTo('#tab_'+this.sanatizeChannelName(chan));
     if( ! (chan === this.currentChannel)) {
+      this.channels[chan].alerting = true;
       $('#button_'+this.sanatizeChannelName(chan)).removeClass('btn-primary');
       $('#button_'+this.sanatizeChannelName(chan)).addClass('btn-danger');
     }
