@@ -10,6 +10,8 @@ WebRic is still in very early development and is not quite ready for production 
 
 Please visit [WebRicIRC.com](http://chat.WebRicIRC.com/) for a live demo.
 
+[![build status](http://ci.ruby-code.com/projects/4/status.png?ref=master)](http://ci.ruby-code.com/projects/4/)
+
 ## Features
 * Tabbed Channels
 * Notification Sounds

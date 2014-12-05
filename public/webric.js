@@ -46,7 +46,10 @@ var WebRic = {
 
   // element IDs begining with # will confuse browsers. FIX it.
   sanatizeChannelName : function(chan) {
-    return chan.replace(/^#/,"CHANNEL_")
+    var sanitized = chan;
+    sanitized = sanitized.replace(/^#/,"CHANNEL_");
+    sanitized = sanitized.replace(/[^a-z_\s]/ig,"_SPECIAL_");
+    return sanitized;
   },
 
   // Determine if a channel needs to be added to UI
@@ -67,7 +70,7 @@ var WebRic = {
     for(var chan in this.channels) {
       $('#channelList').append('<li>' +
         '<a id="button_'+this.sanatizeChannelName(chan)+'" '+
-        'class="btn navbar-btn btn-primary chantab" role="tab" data-toggle="tab" href="#tab_'+this.sanatizeChannelName(this.channels[chan].name)+'">'+
+        'class="btn navbar-btn btn-primary chantab" role="tab" data-toggle="tab" data-name="'+this.channels[chan].name+'" href="#tab_'+this.sanatizeChannelName(this.channels[chan].name)+'">'+
         '<button class="close closechan" type="button"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>'+chan+'</a>'+
         '</li>');
     }
@@ -78,7 +81,8 @@ var WebRic = {
     // Handle channel loading
     $('#channelList a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
       var href=$(e.target).attr('href').substr(5);
-      var channel=$(e.target).attr('href').substr(5).replace(/^CHANNEL_/,"#");
+      // var channel=$(e.target).attr('href').substr(5).replace(/^CHANNEL_/,"#");
+      var channel=$(e.target).attr('data-name');
       WebRic.currentChannel = channel;
       $('#button_'+WebRic.sanatizeChannelName(channel)).addClass('btn-primary');
       $('#button_'+WebRic.sanatizeChannelName(channel)).removeClass('btn-danger');
